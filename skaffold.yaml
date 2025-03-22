@@ -1,0 +1,10 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: argocd
+manifests:
+  rawYaml:
+    - install.yaml
+deploy:
+  kubectl:
+    defaultNamespace: argocd
