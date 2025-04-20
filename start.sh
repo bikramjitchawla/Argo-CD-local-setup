@@ -1,4 +1,11 @@
 #!/bin/bash
+set -euo pipefail 
+# 1. Traefik IngressRoute is used to expose ArgoCD at http://argocd.localhost (no port-forwarding needed)
+# 2. ArgoCD server runs with --insecure flag to disable HTTPS redirect
+#
+# WARNING:
+# This setup exposes ArgoCD over plain HTTP without authentication.
+# Do not use this configuration in production environments.
 
 echo "Setting up the environment..."
 
