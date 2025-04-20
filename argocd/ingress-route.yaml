@@ -5,12 +5,10 @@ metadata:
   namespace: argocd
 spec:
   entryPoints:
-    - websecure
+    - web
   routes:
-    - match: Host(`argocd.localhost.test`)
+    - match: Host(`argocd.localhost`)
       kind: Rule
       services:
         - name: argocd-server
           port: 80
-  tls:
-    secretName: argocd-tls-secret

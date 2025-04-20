@@ -10,9 +10,9 @@ spec:
   ports:
     - name: http
       port: 80
-      targetPort: 32080   # Match the container port mapped by KIND for HTTP
-      nodePort: 30080
+      targetPort: 8080         
+      nodePort: 30080          
     - name: https
       port: 443
-      targetPort: 32443   # Match the container port mapped by KIND for HTTPS
+      targetPort: 8080        
       nodePort: 30443

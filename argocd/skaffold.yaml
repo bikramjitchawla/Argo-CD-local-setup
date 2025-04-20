@@ -6,7 +6,6 @@ manifests:
   rawYaml:
     - install.yaml
     - ingress-route.yaml
-    - argocd-nodeport-server.yaml
 deploy:
   kubectl:
     defaultNamespace: argocd
