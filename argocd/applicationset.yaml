@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: personal-gitops-apps
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/bikramjitchawla/gitops-.git
+        revision: main
+        directories:
+          - path: apps/*     
+  template:
+    metadata:
+      name: '{{path.basename}}'    
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/bikramjitchawla/gitops-.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
