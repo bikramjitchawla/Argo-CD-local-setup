@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail 
-# 1. Traefik IngressRoute is used to expose ArgoCD at http://argocd.localhost (no port-forwarding needed)
+# 1. Traefik Ingress is used to expose ArgoCD at https://argocd.172.18.255.200.nip.io (no port-forwarding needed)
 # 2. ArgoCD server runs with --insecure flag to disable HTTPS redirect
 #
 # WARNING:
@@ -18,7 +18,7 @@ skaffold run
 cd ..
 
 # argo cd by default ha ingress secure true so if we want to access on http then we need to apply it manually and restart deployment
-kubectl patch configmap argocd-cmd-params-cm -n argocd \ 
+kubectl patch configmap argocd-cmd-params-cm -n argocd \
   --type merge -p '{"data":{"server.insecure":"true"}}'
 
 kubectl rollout restart deployment argocd-server -n argocd
