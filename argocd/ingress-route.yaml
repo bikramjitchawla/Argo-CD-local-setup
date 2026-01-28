@@ -7,12 +7,13 @@ metadata:
     kubernetes.io/ingress.class: traefik
     cert-manager.io/cluster-issuer: selfsigned
 spec:
+  ingressClassName: traefik
   tls:
     - hosts:
-        - argocd.172.18.255.200.nip.io
+        - argocd.127.0.0.1.nip.io
       secretName: argocd-tls
   rules:
-    - host: argocd.172.18.255.200.nip.io
+    - host: argocd.127.0.0.1.nip.io
       http:
         paths:
           - path: /
@@ -21,4 +22,4 @@ spec:
               service:
                 name: argocd-server
                 port:
-                  number: 80
+                  name: http

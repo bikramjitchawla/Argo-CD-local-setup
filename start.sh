@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail 
-# 1. Traefik Ingress is used to expose ArgoCD at https://argocd.172.18.255.200.nip.io (no port-forwarding needed)
+# 1. Traefik Ingress is used to expose ArgoCD at https://argocd.127.0.0.1.nip.io (via localhost-mapped Traefik)
 # 2. ArgoCD server runs with --insecure flag to disable HTTPS redirect
 #
 # WARNING:
