@@ -1,10 +1,12 @@
 #!/bin/bash
 set -euo pipefail 
-# 1. Traefik Ingress is used to expose ArgoCD at https://argocd.127.0.0.1.nip.io (via localhost-mapped Traefik)
-# 2. ArgoCD server runs with --insecure flag to disable HTTPS redirect
+# 1. Traefik terminates HTTPS and exposes Argo CD at:
+#    https://argocd.127.0.0.1.nip.io
+# 2. Argo CD server runs with server.insecure=true so Traefik can forward
+#    plain HTTP to the in-cluster argocd-server service.
 #
 # WARNING:
-# This setup exposes ArgoCD over plain HTTP without authentication.
+# This uses a self-signed certificate and is intended only for local clusters.
 # Do not use this configuration in production environments.
 
 echo "Setting up the environment..."
@@ -22,5 +24,7 @@ kubectl patch configmap argocd-cmd-params-cm -n argocd \
   --type merge -p '{"data":{"server.insecure":"true"}}'
 
 kubectl rollout restart deployment argocd-server -n argocd
+
+echo "Argo CD should be available at: https://argocd.127.0.0.1.nip.io"
 # echo "Port-forwarding Argo CD server to localhost:8080..."
 # kubectl port-forward svc/argocd-server -n argocd 8080:443

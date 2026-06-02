@@ -7,9 +7,9 @@ manifests:
   rawYaml:
     - install.yaml
     - selfsigned-clusterissuer.yaml
-    - argocd-nodeport-server.yaml
     - ingress-route.yaml
-    # - applicationset.yaml
+    - polaris-exempt-namespaces.yaml
+    - applicationset.yaml
 
 deploy:
   kubectl:

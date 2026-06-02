@@ -1,28 +1,44 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: personal-gitops-apps
+  name: kind-app-workloads
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
   generators:
-    - git:
-        repoURL: https://github.com/bikramjitchawla/gitops-.git
-        revision: main
-        directories:
-          - path: apps/*     
+    - list:
+        elements:
+          - name: oauth
+            repoURL: https://github.com/bikramjitchawla/Kubernetes-cluster-development.git
+            targetRevision: main
+            namespace: oauth
+            path: Oauth
+            include: '{installation.yaml,ingress.yaml}'
+          - name: pg-vector
+            repoURL: https://github.com/bikramjitchawla/pg-vector.git
+            targetRevision: main
+            namespace: vector-db
+            path: .
+            include: '{01-cnpg-operator.yaml,cnpg-operator.yaml,pgvector-cluster.yaml,pgvector-nodeport.yaml}'
   template:
     metadata:
-      name: '{{path.basename}}'    
+      name: '{{ .name }}'
     spec:
       project: default
       source:
-        repoURL: https://github.com/bikramjitchawla/gitops-.git
-        targetRevision: main
-        path: '{{path}}'
+        repoURL: '{{ .repoURL }}'
+        targetRevision: '{{ .targetRevision }}'
+        path: '{{ .path }}'
+        directory:
+          include: '{{ .include }}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
+        namespace: '{{ .namespace }}'
       syncPolicy:
-        automated: null
+        automated:
           prune: true
           selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
