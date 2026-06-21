@@ -23,8 +23,16 @@ cd ..
 kubectl patch configmap argocd-cmd-params-cm -n argocd \
   --type merge -p '{"data":{"server.insecure":"true"}}'
 
+# In local Kind + Traefik, Ingress.status.loadBalancer usually stays empty.
+# Argo CD's default Ingress health check treats that as Progressing, even when
+# Traefik is routing correctly. For this local setup, a configured rule is enough.
+kubectl patch configmap argocd-cm -n argocd \
+  --type merge -p '{"data":{"resource.customizations.health.networking.k8s.io_Ingress":"hs = {}\nif obj.spec ~= nil and obj.spec.rules ~= nil and #obj.spec.rules > 0 then\n  hs.status = \"Healthy\"\n  hs.message = \"Ingress rules configured; local Kind/Traefik does not publish loadBalancer status\"\n  return hs\nend\nhs.status = \"Progressing\"\nhs.message = \"Waiting for ingress rules\"\nreturn hs\n"}}'
+
 kubectl rollout restart deployment argocd-server -n argocd
 kubectl rollout status deployment argocd-server -n argocd --timeout=180s
+kubectl rollout restart statefulset argocd-application-controller -n argocd
+kubectl rollout status statefulset argocd-application-controller -n argocd --timeout=180s
 
 kubectl apply -f argocd/applicationset.yaml
 
