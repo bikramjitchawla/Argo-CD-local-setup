@@ -42,3 +42,81 @@ spec:
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kind-tenant-platform
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+  generators:
+    - list:
+        elements:
+          - name: tenant-a-platform
+            namespace: tenant-a
+            path: platform/tenants/tenant-a
+          - name: tenant-b-platform
+            namespace: tenant-b
+            path: platform/tenants/tenant-b
+  template:
+    metadata:
+      name: '{{ .name }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/bikramjitchawla/Argo-CD-local-setup.git
+        targetRevision: main
+        path: '{{ .path }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .namespace }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kind-tenant-workloads
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+  generators:
+    - list:
+        elements:
+          - name: tenant-a-workloads
+            namespace: tenant-a
+            path: apps/tenants/tenant-a
+          - name: tenant-b-workloads
+            namespace: tenant-b
+            path: apps/tenants/tenant-b
+  template:
+    metadata:
+      name: '{{ .name }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/bikramjitchawla/Argo-CD-local-setup.git
+        targetRevision: main
+        path: '{{ .path }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .namespace }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        retry:
+          limit: 5
+          backoff:
+            duration: 15s
+            factor: 2
+            maxDuration: 2m

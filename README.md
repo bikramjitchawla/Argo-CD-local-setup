@@ -47,7 +47,7 @@ Argo CD then manages app workloads declared in `argocd/applicationset.yaml`.
 
 ## Current Argo-Managed Apps
 
-The current `ApplicationSet` is `kind-app-workloads`.
+The current app workload `ApplicationSet` is `kind-app-workloads`.
 
 It generates these Argo CD Applications:
 
@@ -70,6 +70,56 @@ pg-vector
   path: .
   files: 01-cnpg-operator.yaml, cnpg-operator.yaml, pgvector-cluster.yaml, pgvector-nodeport.yaml
   namespace: vector-db
+```
+
+Tenant ownership is split into two ApplicationSets.
+
+The platform-side tenant ApplicationSet is `kind-tenant-platform`.
+
+It generates one Argo CD Application per tenant boundary:
+
+```text
+tenant-a-platform
+tenant-b-platform
+```
+
+Sources:
+
+```text
+tenant-a-platform
+  repo: https://github.com/bikramjitchawla/Argo-CD-local-setup.git
+  path: platform/tenants/tenant-a
+  namespace: tenant-a
+
+tenant-b-platform
+  repo: https://github.com/bikramjitchawla/Argo-CD-local-setup.git
+  path: platform/tenants/tenant-b
+  namespace: tenant-b
+```
+
+The app-side tenant ApplicationSet is `kind-tenant-workloads`.
+
+It generates one Argo CD Application per tenant workload:
+
+```text
+tenant-a-workloads
+tenant-b-workloads
+```
+
+Sources:
+
+```text
+tenant-a-workloads
+  repo: https://github.com/bikramjitchawla/Argo-CD-local-setup.git
+  path: apps/tenants/tenant-a
+  namespace: tenant-a
+  url: https://app.tenant-a.127.0.0.1.nip.io
+
+tenant-b-workloads
+  repo: https://github.com/bikramjitchawla/Argo-CD-local-setup.git
+  path: apps/tenants/tenant-b
+  namespace: tenant-b
+  url: https://app.tenant-b.127.0.0.1.nip.io
 ```
 
 Argo CD reads GitHub, not local folders. Push changes to the GitHub repos before expecting Argo CD to sync them.
@@ -137,6 +187,8 @@ Check generated workloads:
 kubectl -n oauth get pods
 kubectl -n vector-db get pods
 kubectl -n cnpg-system get pods
+kubectl -n tenant-a get pods,ingress
+kubectl -n tenant-b get pods,ingress
 ```
 
 ## Local Domains
@@ -166,7 +218,32 @@ Local platform repo manages:
   kind, calico, metallb, cert-manager, traefik, polaris
 
 Argo CD manages:
-  oauth, pg-vector, future app workloads
+  oauth, pg-vector, tenant platform boundaries, tenant workloads, future app workloads
 ```
 
 This keeps cluster bootstrap separate from GitOps app delivery.
+
+## Tenant Model
+
+This repo demonstrates namespace-based tenancy in one local Kind cluster.
+
+Each platform-side tenant Application gets:
+
+```text
+Namespace
+ResourceQuota
+LimitRange
+Role
+RoleBinding
+NetworkPolicy
+```
+
+Each app-side tenant Application gets:
+
+```text
+Deployment
+Service
+Ingress
+```
+
+The `kind-tenant-platform` ApplicationSet represents platform-team ownership. The `kind-tenant-workloads` ApplicationSet represents app-team ownership. This is the same pattern that can later be extended to multiple clusters after registering those clusters in Argo CD.
