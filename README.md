@@ -3,7 +3,7 @@
 This repo bootstraps Argo CD into the local Kind cluster created by:
 
 ```text
-/Users/bikramjitsingh/Desktop/Projects/Kubernetes-cluster-development
+https://github.com/bikramjitchawla/Kubernetes-cluster-development.git
 ```
 
 Use this repo for Argo CD itself and for Argo CD `ApplicationSet` definitions. Use `Kubernetes-cluster-development` for the local cluster platform setup.
@@ -12,7 +12,13 @@ Use this repo for Argo CD itself and for Argo CD `ApplicationSet` definitions. U
 
 ### Kubernetes-cluster-development
 
-This is the local cluster/platform repo. Its `start.sh` creates and configures the cluster:
+This is the local cluster/platform repo:
+
+```text
+https://github.com/bikramjitchawla/Kubernetes-cluster-development.git
+```
+
+Its `start.sh` creates and configures the cluster:
 
 ```text
 Kind cluster
@@ -73,14 +79,16 @@ Argo CD reads GitHub, not local folders. Push changes to the GitHub repos before
 Start the local platform cluster first:
 
 ```bash
-cd /Users/bikramjitsingh/Desktop/Projects/Kubernetes-cluster-development
+git clone https://github.com/bikramjitchawla/Kubernetes-cluster-development.git
+cd Kubernetes-cluster-development
 ./start.sh
 ```
 
 Then install Argo CD:
 
 ```bash
-cd /Users/bikramjitsingh/Desktop/Projects/Argo-CD-local-setup
+git clone https://github.com/bikramjitchawla/Argo-CD-local-setup.git
+cd Argo-CD-local-setup
 ./start.sh
 ```
 
