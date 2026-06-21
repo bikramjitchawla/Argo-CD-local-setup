@@ -9,7 +9,6 @@ manifests:
     - selfsigned-clusterissuer.yaml
     - ingress-route.yaml
     - polaris-exempt-namespaces.yaml
-    - applicationset.yaml
 
 deploy:
   kubectl:

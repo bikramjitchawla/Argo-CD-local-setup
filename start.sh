@@ -24,6 +24,9 @@ kubectl patch configmap argocd-cmd-params-cm -n argocd \
   --type merge -p '{"data":{"server.insecure":"true"}}'
 
 kubectl rollout restart deployment argocd-server -n argocd
+kubectl rollout status deployment argocd-server -n argocd --timeout=180s
+
+kubectl apply -f argocd/applicationset.yaml
 
 echo "Argo CD should be available at: https://argocd.127.0.0.1.nip.io"
 # echo "Port-forwarding Argo CD server to localhost:8080..."
