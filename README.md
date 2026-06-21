@@ -1,12 +1,28 @@
 # Argo CD Local Setup
 
-This repo bootstraps Argo CD into the local Kind cluster created by:
+This repo is the GitOps layer for the local Kind platform created by:
 
 ```text
 https://github.com/bikramjitchawla/Kubernetes-cluster-development.git
 ```
 
-Use this repo for Argo CD itself and for Argo CD `ApplicationSet` definitions. Use `Kubernetes-cluster-development` for the local cluster platform setup.
+Use `Kubernetes-cluster-development` to create the shared local cluster and platform add-ons. Use this repo to install Argo CD into that cluster and define what Argo CD should manage.
+
+## End-to-End Flow
+
+```text
+Kubernetes-cluster-development
+  -> creates the shared Kind cluster
+  -> installs platform services like Calico, MetalLB, cert-manager, Traefik, Polaris
+
+Argo-CD-local-setup
+  -> installs Argo CD into that cluster
+  -> exposes Argo CD through Traefik
+  -> applies ApplicationSets
+
+Argo CD
+  -> syncs app workloads and tenant namespace configuration from Git
+```
 
 ## Repo Responsibilities
 
@@ -31,6 +47,8 @@ Polaris
 
 Those are platform/bootstrap components and should generally stay outside Argo CD for this local setup.
 
+This repo assumes that cluster already exists before `./start.sh` is run here.
+
 ### Argo-CD-local-setup
 
 This repo installs Argo CD into the already-running local cluster:
@@ -44,6 +62,13 @@ ApplicationSet for app workloads
 ```
 
 Argo CD then manages app workloads declared in `argocd/applicationset.yaml`.
+
+It also contains the namespace-based tenant model used in the shared cluster:
+
+```text
+platform/tenants/*
+apps/tenants/*
+```
 
 ## Current Argo-Managed Apps
 
@@ -124,6 +149,12 @@ tenant-b-workloads
 
 Argo CD reads GitHub, not local folders. Push changes to the GitHub repos before expecting Argo CD to sync them.
 
+For example, changing `apps/tenants/tenant-a/app.yaml` locally does nothing until the change is pushed to:
+
+```text
+https://github.com/bikramjitchawla/Argo-CD-local-setup.git
+```
+
 ## Install Flow
 
 Start the local platform cluster first:
@@ -141,6 +172,8 @@ git clone https://github.com/bikramjitchawla/Argo-CD-local-setup.git
 cd Argo-CD-local-setup
 ./start.sh
 ```
+
+The Argo CD script prints the UI URL, username, and initial admin password after the server is ready.
 
 ## Access Argo CD
 
@@ -223,9 +256,16 @@ Argo CD manages:
 
 This keeps cluster bootstrap separate from GitOps app delivery.
 
+In practical terms:
+
+```text
+Do not add Calico, MetalLB, cert-manager, Traefik, or Polaris to this repo's ApplicationSets.
+Do add tenant boundaries, tenant apps, and other app workloads to this repo's ApplicationSets.
+```
+
 ## Tenant Model
 
-This repo demonstrates namespace-based tenancy in one local Kind cluster.
+This repo demonstrates namespace-based tenancy in one shared local Kind cluster.
 
 Each platform-side tenant Application gets:
 
